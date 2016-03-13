@@ -5,8 +5,14 @@ import * as storage from '../services/storage';
 import * as accountService from '../services/account';
 
 
-export const getAddressInfoFromStorage = createAction(types.GET_ADDRESS_INFO_FROM_STORAGE, async ()=> {
-    return storage.getItem('account');
+export const getAccountFromStorage = createAction(types.GET_ACCOUNT_FROM_STORAGE, async ()=> {
+    return storage.getItem('account')
+        .then((account)=> {
+            if (!account || !account.address) {
+                throw 'Address is empty'
+            }
+            return account;
+        });
 }, (resolved, rejected)=> {
     return {
         resolved,
@@ -15,9 +21,21 @@ export const getAddressInfoFromStorage = createAction(types.GET_ADDRESS_INFO_FRO
 });
 
 
-export const getAddressInfo = createAction(types.GET_ADDRESS_INFO, accountService.getBalanceByAddress);
+export const getBalance = createAction(types.GET_BANLANCE, accountService.getBalanceByAddress, ()=> {
+    return {
+        sync: 'account'
+    }
+});
 
 
+export const update = createAction(types.UPDATE);
+
+export const startUpdate = createAction(types.START_UPDATE);
+
+
+export const getAddressByName = createAction(types.GET_ADDRESS_BY_NAME, async ()=> {
+
+});
 
 
 

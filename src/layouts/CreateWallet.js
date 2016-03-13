@@ -7,9 +7,7 @@ import React, {
     TextInput,
     Dimensions
 } from 'react-native';
-import { Actions } from 'react-native-router-flux';
 import Button from '../components/base/Button';
-
 
 const { height, width } = Dimensions.get('window');
 
@@ -36,7 +34,7 @@ class CreateWallet extends Component {
             pwd: this.state.text,
             resolved: ()=> {
                 actions.toast('钱包创建成功');
-                Actions.createModal2();
+                this.props.router.toEncryptWallet();
             }
         });
     }

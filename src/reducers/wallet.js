@@ -31,9 +31,18 @@ export default function (state = initialState, action) {
                 encryptWallet: payload
             };
         case types.DECRYPTE_WALLET:
+            if (payload) {
+                return {
+                    ...state,
+                    ...payload
+                };
+            }
+            return state;
+        case types.LOCK:
             return {
                 ...state,
-                wallet: payload
+                seed: null,
+                account: null
             };
         case types.GET_WALLET_FROM_STORAGE:
             return {

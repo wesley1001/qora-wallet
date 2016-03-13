@@ -6,8 +6,9 @@ import React, {
     Text,
     Dimensions,
     ScrollView,
+    TouchableOpacity,
+    RefreshControl
 } from 'react-native';
-import { Actions } from 'react-native-router-flux';
 import Icon from 'react-native-vector-icons/Ionicons';
 import moment from 'moment';
 import Spinner from '../components/base/Spinner';
@@ -16,20 +17,25 @@ import Spinner from '../components/base/Spinner';
 const { height, width } = Dimensions.get('window');
 
 
-class Home extends Component {
+class Account extends Component {
+    constructor(props) {
+        super(props);
+    }
+
+
     componentDidMount() {
         const { actions, account } = this.props;
         actions.getWalletFormStorage({
             resolved: ()=> {
-                //Actions.createWallet();
+                actions.getAccountFromStorage(({ address })=> {
+                    actions.getBalance(address);
+                });
             },
             rejected: ()=> {
-                Actions.createWallet();
+                this.props.router.toCreateWallet();
             }
         });
-        actions.getAddressInfoFromStorage(({ address })=> {
-            actions.getAddressInfo(address);
-        });
+        actions.getTransactionFromStorage();
     }
 
 
@@ -59,26 +65,48 @@ class Home extends Component {
     }
 
 
+    _onRefresh() {
+        this.props.actions.update();
+    }
+
+
     render() {
-        const { info={} } = this.props.account;
-        const { lastBlock={} } = info;
+        const { lastBlock={}, balance={} } = this.props.account;
 
         return (
-            <ScrollView style={styles.container}>
+            <ScrollView style={styles.container}
+                        refreshControl={
+                              <RefreshControl
+                                refreshing={this.props.accountUI.getAddressBalancePending}
+                                onRefresh={this._onRefresh.bind(this)}
+                                tintColor="#4845aa"
+                                title="Loading..."
+                                colors={['#4845aa']}
+                                progressBackgroundColor="#ffff00"
+                              />
+                            }
+            >
 
                 { this._renderBlockInfo(lastBlock) }
 
                 <View key="wall" style={styles.wall}>
                     <View style={styles.wallItem}>
-                        <Icon name="ios-paperplane" size={45} style={styles.wallItemText}/>
-                        <Text style={styles.wallItemText}>
-                            打款
-                        </Text>
+                        <TouchableOpacity onPress={()=> this.props.router.toSend({back:true})}>
+                            <View>
+                                <Icon name="ios-paperplane" size={45} style={styles.wallItemText}/>
+                                <Text style={styles.wallItemText}>
+                                    打款
+                                </Text>
+                            </View>
+                        </TouchableOpacity>
                     </View>
 
                     <View style={styles.wallItem}>
                         <Icon name="ios-circle-filled" size={45} style={styles.wallItemText}/>
-                        <Text style={styles.wallItemText}>
+                        <Text onPress={()=>{
+                            this.props.actions.openUnlock();
+                        }}
+                              style={styles.wallItemText}>
                             余额
                         </Text>
                     </View>
@@ -92,7 +120,7 @@ class Home extends Component {
                 </View>
                 <View key="sub-wall" style={styles.subWall}>
                     <Text style={styles.balance}>
-                        {info.balanceCheck}
+                        { balance}
                     </Text>
                 </View>
 
@@ -139,7 +167,6 @@ class Home extends Component {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        marginTop: 64,
         flexDirection: 'column',
         marginBottom: 50
     },
@@ -213,8 +240,9 @@ export function mapStateToProps(state) {
     return {
         wallet: state.wallet,
         walletUI: state.walletUI,
-        account: state.account
+        account: state.account,
+        accountUI: state.accountUI
     };
 }
 
-export const LayoutComponent = Home;
+export const LayoutComponent = Account;
