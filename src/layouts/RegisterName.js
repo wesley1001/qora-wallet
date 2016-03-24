@@ -8,7 +8,6 @@ import React, {
     TouchableOpacity,
     Text
 } from 'react-native';
-import Icon from 'react-native-vector-icons/Ionicons';
 import Button from '../components/base/Button';
 import Loading from '../components/base/Loading';
 import mapHttpResultToStatus from '../utils/mapHttpResultToStatus';
@@ -17,12 +16,12 @@ import mapHttpResultToStatus from '../utils/mapHttpResultToStatus';
 const {height, width} = Dimensions.get('window');
 
 
-class Send extends Component {
+class RegisterName extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            recipient: '',
-            amount: '',
+            name: '',
+            value: '',
             fee: '10'
         };
     }
@@ -31,28 +30,24 @@ class Send extends Component {
     _onPress() {
         if (this.sending) return;
         const {actions} = this.props;
-        const {amount, fee, recipient} = this.state;
+        const {name, fee, value} = this.state;
         const {toast} = actions;
 
-        if (!recipient) {
-            return toast('地址不能为空');
+        if (!name) {
+            return toast('名字不能为空');
         }
 
-        if (!amount) {
-            return toast('数量不能为空');
-        }
-
-        if (this.props.balance - 10 < amount) {
-            return toast('您的余额不足');
+        if (!value) {
+            return toast('value不能为空');
         }
 
 
         this.sending = true;
 
-        actions.send({
+        actions.registerName({
             fee,
-            amount,
-            recipient,
+            name: name.toLowerCase().trim(),
+            value: value.toLowerCase().trim(),
             resolved: (result)=> {
                 this.sending = false;
                 if (typeof result === 'object' && result.timestamp) {
@@ -66,18 +61,6 @@ class Send extends Component {
             rejected: ()=> {
                 this.sending = false;
                 actions.toast('发送失败');
-            }
-        });
-    }
-
-
-    _onCameraPress() {
-        this.props.router.toQRCode({
-            back: true,
-            callback: ({data})=> {
-                this.setState({
-                    recipient: data
-                })
             }
         });
     }
@@ -101,27 +84,23 @@ class Send extends Component {
                         <TextInput
                             style={[styles.input, styles.recipientInput ]}
                             onChangeText={(text) => this.setState({
-                                recipient: text
+                                name: text.toLowerCase()
                             })}
-                            value={this.state.recipient}
-                            placeholder="请输入收款地址"
+                            value={this.state.name}
+                            placeholder="请输入注册名字"
                             selectionColor="#4845aa"
                             autoFocus={ true }
                         />
-                        <View style={styles.cameraBtn}>
-                            <TouchableOpacity onPress={this._onCameraPress.bind(this)}>
-                                <Icon name="camera" color="#4845aa" size={30}/>
-                            </TouchableOpacity>
-                        </View>
                     </View>
 
                     <TextInput
-                        style={ styles.input }
+                        style={[styles.input, styles.multiInput ]}
                         onChangeText={(text) => this.setState({
-                        amount:text
-                    })}
-                        value={this.state.amount}
-                        placeholder="请输入打款数额"
+                            value: text
+                        })}
+                        value={this.state.value}
+                        placeholder="请输入注册名字的value"
+                        multiline={true}
                         selectionColor="#4845aa"
                         keyboardType="numeric"
                     />
@@ -129,11 +108,11 @@ class Send extends Component {
 
                     <View style={styles.buttonWrapper}>
                         <Button style={styles.button} containerStyle={{flex:1}} onPress={this._onPress.bind(this)}>
-                            Send
+                            Register
                         </Button>
                     </View>
                 </View>
-                { this.props.transactionUI.sendPending && <Loading style={styles.loading}/>}
+                { this.props.transactionUI.registerNamePending && <Loading style={styles.loading}/>}
             </View>
         )
     }
@@ -147,7 +126,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white'
     },
     form: {
-        height: 40 * 4 + 70,
+        height: 40 * 6 + 70,
         flexDirection: 'column',
         justifyContent: 'space-around',
         padding: 20
@@ -159,6 +138,10 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         paddingLeft: 10,
         paddingRight: 10
+    },
+    multiInput: {
+        height: 40 * 3,
+        fontSize: 16
     },
     recipientInput: {
         paddingRight: 60
@@ -190,7 +173,7 @@ const styles = StyleSheet.create({
 });
 
 
-export const LayoutComponent = Send;
+export const LayoutComponent = RegisterName;
 export function mapStateToProps(state) {
     return {
         transactionUI: state.transactionUI,

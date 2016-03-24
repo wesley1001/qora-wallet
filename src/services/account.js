@@ -1,4 +1,3 @@
-import * as storage from './storage';
 import * as req from './request';
 
 
@@ -28,5 +27,16 @@ export function getAddressByName(name) {
                 return data.result;
             }
             throw data;
+        });
+}
+
+
+export function getNameListByAddress(address) {
+    return req.post('/index/api.html', {
+            type: 'get',
+            apiurl: `/transactions/unconfirmedof/${address}`
+        })
+        .then(data=> {
+            console.log(data);
         });
 }
