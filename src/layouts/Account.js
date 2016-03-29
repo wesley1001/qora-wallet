@@ -29,6 +29,7 @@ class Account extends Component {
             resolved: ()=> {
                 actions.getAccountFromStorage(({address})=> {
                     actions.getBalance(address);
+                    actions.getUnconfirmedTransactionList(address);
                 });
             },
             rejected: ()=> {
@@ -112,7 +113,9 @@ class Account extends Component {
                     </View>
 
                     <View style={styles.wallItem}>
-                        <TouchableOpacity  onPress={()=> this.props.router.toRequest({back:true})}>
+                        <TouchableOpacity onPress={()=> this.props.router.toRequest({
+                            back:true
+                        })}>
                             <Icon name="arrow-swap" size={45} style={styles.wallItemText}/>
                             <Text style={styles.wallItemText}>
                                 收款
@@ -122,7 +125,7 @@ class Account extends Component {
                 </View>
                 <View key="sub-wall" style={styles.subWall}>
                     <Text style={styles.balance}>
-                        { balance}
+                        { parseFloat(balance) }
                     </Text>
                 </View>
 
@@ -135,7 +138,10 @@ class Account extends Component {
 
                 <View key="box-wrapper" style={styles.boxWrapper}>
                     <View style={styles.box}>
-                        <TouchableOpacity onPress={()=> this.props.router.toRegisterName({back:true})}>
+                        <TouchableOpacity onPress={()=> this.props.router.toName({
+                            back:true,
+                            showNav: false
+                        })}>
                             <View style={styles.box}>
                                 <Icon size={40} name="ios-world"/>
                                 <Text style={styles.boxText}>
@@ -147,19 +153,19 @@ class Account extends Component {
                     <View style={styles.box}>
                         <Icon size={40} name="ios-world"/>
                         <Text style={styles.boxText}>
-                            Name Service
+                            Blog Service
                         </Text>
                     </View>
                     <View style={styles.box}>
                         <Icon size={40} name="ios-world"/>
                         <Text style={styles.boxText}>
-                            Name Service
+                            Block Explore
                         </Text>
                     </View>
                     <View style={styles.box}>
                         <Icon size={40} name="ios-world"/>
                         <Text style={styles.boxText}>
-                            Name Service
+                            Message Service
                         </Text>
                     </View>
                 </View>
